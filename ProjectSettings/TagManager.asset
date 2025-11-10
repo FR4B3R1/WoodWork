@@ -7,6 +7,8 @@ TagManager:
   - CinemachineTarget
   - Pickup
   - Cuttable
+  - Wood
+  - Minigame
   layers:
   - Default
   - TransparentFX
