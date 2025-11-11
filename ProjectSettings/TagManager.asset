@@ -11,6 +11,9 @@ TagManager:
   - Minigame
   - Minigame2
   - Plank
+  - Guanti
+  - Casco
+  - Occhiali
   layers:
   - Default
   - TransparentFX
@@ -18,7 +21,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Collectible
   - 
   - 
   - 

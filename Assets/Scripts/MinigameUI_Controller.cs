@@ -1,10 +1,16 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
+using System.Collections;
 
 public class MinigameUIController : MonoBehaviour
 {
     [Header("Panel UI del minigioco")]
     [SerializeField] private GameObject panel; // Il root del pannello (il GameObject del Panel)
+
+    [Header("Warning UI")]
+    [SerializeField] private GameObject warningPanel; // Pannello per il messaggio di avviso
+    [SerializeField] private Text warningText;        // Testo del messaggio
 
     [Header("Eventi")]
     public UnityEvent OnStartPressed; // da collegare a CameraSwitcher.StartMinigame
@@ -12,8 +18,10 @@ public class MinigameUIController : MonoBehaviour
     private void Awake()
     {
         if (panel == null) panel = gameObject;
-        // Assicurati che all'avvio sia spento
         panel.SetActive(false);
+
+        if (warningPanel != null)
+            warningPanel.SetActive(false);
     }
 
     public void ShowPanel()
@@ -31,5 +39,23 @@ public class MinigameUIController : MonoBehaviour
     {
         HidePanel();
         OnStartPressed?.Invoke();
+    }
+
+    // ✅ Metodo per mostrare il messaggio di equipaggiamento mancante
+    public void ShowEquipWarning(string message)
+    {
+        if (warningPanel == null || warningText == null) return;
+
+        warningText.text = message;
+        warningPanel.SetActive(true);
+
+        // Nascondi dopo 2 secondi
+        StartCoroutine(HideWarningAfterDelay(2f));
+    }
+
+    private IEnumerator HideWarningAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        warningPanel.SetActive(false);
     }
 }

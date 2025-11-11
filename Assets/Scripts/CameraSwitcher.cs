@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using StarterAssets;
 
@@ -13,6 +13,7 @@ public class CameraSwitcher : MonoBehaviour
 
     [Header("Player (StarterAssets FPC)")]
     [SerializeField] private FirstPersonController firstPersonController;
+    [SerializeField] private InventoryManager inventoryManager;
 
     [Header("Minigioco (logica)")]
     [SerializeField] private MonoBehaviour sawController;   // script della sega (es. SawController)
@@ -20,6 +21,7 @@ public class CameraSwitcher : MonoBehaviour
 
     [Header("UI Minigioco")]
     [SerializeField] private MinigameUIController minigameUI;
+    [SerializeField] private GameObject warningText;
 
     [Header("Cursor")]
     [SerializeField] private bool lockCursorDuringMinigame = true;
@@ -69,9 +71,12 @@ public class CameraSwitcher : MonoBehaviour
         if (!_nearMinigame) return;
 
         if (_inMinigameView)
+        {
             ExitToMainCamera();
-        else
-            EnterMinigameView();
+            return;
+        }
+
+        EnterMinigameView();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -93,6 +98,7 @@ public class CameraSwitcher : MonoBehaviour
 
     private void EnterMinigameView()
     {
+
         SetCameras(mainOn: false);
         _inMinigameView = true;
 
@@ -103,7 +109,7 @@ public class CameraSwitcher : MonoBehaviour
             firstPersonController.SprintSpeed = 0f;
         }
 
-        // Disabilita logica finch� non premi Start
+        // Disabilita logica finché non premi Start
         SetMinigameLogicEnabled(false);
         _minigameRunning = false;
 
@@ -118,6 +124,8 @@ public class CameraSwitcher : MonoBehaviour
 
     public void StartMinigame()
     {
+
+
         // Questo metodo viene chiamato da MinigameUIController.OnStartPressed
         _minigameRunning = true;
         SetMinigameLogicEnabled(true);

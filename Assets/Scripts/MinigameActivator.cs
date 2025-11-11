@@ -1,22 +1,32 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class MiniGameActivator : MonoBehaviour
 {
     public Camera mainCamera;
     public Camera miniGameCamera;
-    public MonoBehaviour playerControllerScript; // script di movimento (non il GameObject)
+    public MonoBehaviour playerControllerScript;
     [Header("Panel UI del minigioco")]
-    [SerializeField] private GameObject panel; // Il root del pannello (il GameObject del Panel)
+    [SerializeField] private GameObject panel;
+
+    [Header("Popup di avviso")]
+    [SerializeField] private GameObject warningPopup; // Assegna il Panel di avviso
+    [SerializeField] private float warningDuration = 3f; // Durata in secondi
 
     private PlayerInput playerInput;
     private bool isNearMiniGameObject = false;
     private bool isInMiniGame = false;
 
+    private InventoryManager inventory;
+
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerInput.actions["Interaction"].performed += OnInteraction;
+
+        inventory = GetComponent<InventoryManager>();
+        warningPopup.SetActive(false); // Nascondi all'inizio
     }
 
     void OnDestroy()
@@ -37,6 +47,7 @@ public class MiniGameActivator : MonoBehaviour
         if (other.CompareTag("Minigame"))
         {
             isNearMiniGameObject = false;
+            warningPopup.SetActive(false);
         }
     }
 
@@ -45,9 +56,20 @@ public class MiniGameActivator : MonoBehaviour
         if (isNearMiniGameObject)
         {
             if (!isInMiniGame)
-                EnterMiniGame();
+            {
+                if (inventory != null && inventory.allEquipped)
+                {
+                    EnterMiniGame();
+                }
+                else
+                {
+                    ShowWarning();
+                }
+            }
             else
+            {
                 ExitMiniGame();
+            }
         }
     }
 
@@ -56,10 +78,11 @@ public class MiniGameActivator : MonoBehaviour
         mainCamera.enabled = false;
         miniGameCamera.enabled = true;
 
-        playerControllerScript.enabled = false; // blocca movimento
+        playerControllerScript.enabled = false;
         panel.SetActive(true);
 
         isInMiniGame = true;
+        warningPopup.SetActive(false);
     }
 
     void ExitMiniGame()
@@ -67,9 +90,23 @@ public class MiniGameActivator : MonoBehaviour
         mainCamera.enabled = true;
         miniGameCamera.enabled = false;
 
-        playerControllerScript.enabled = true; // riattiva movimento
+        playerControllerScript.enabled = true;
         panel.SetActive(false);
 
         isInMiniGame = false;
+    }
+
+    void ShowWarning()
+    {
+        warningPopup.SetActive(true);
+        Debug.Log("Non puoi entrare: devi indossare tutti i DPI");
+        StopAllCoroutines(); // Evita conflitti se viene chiamato più volte
+        StartCoroutine(HideWarningAfterDelay(warningDuration));
+    }
+
+    IEnumerator HideWarningAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        warningPopup.SetActive(false);
     }
 }
