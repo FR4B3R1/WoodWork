@@ -1228,7 +1228,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f957921d170891643ba33b30ddf4816b, type: 3}
       propertyPath: m_Name
-      value: Eletctricsega (1)
+      value: TriggerMinigioco2
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f957921d170891643ba33b30ddf4816b, type: 3}
       propertyPath: m_IsActive
@@ -2135,7 +2135,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f957921d170891643ba33b30ddf4816b, type: 3}
       propertyPath: m_Name
-      value: Eletctricsega
+      value: Sega_Nastro
       objectReference: {fileID: 0}
     - target: {fileID: 4083501151425157549, guid: f957921d170891643ba33b30ddf4816b, type: 3}
       propertyPath: m_LocalScale.z
@@ -3532,7 +3532,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000061035156, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1233283564
