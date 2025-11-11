@@ -9,6 +9,8 @@ TagManager:
   - Cuttable
   - Wood
   - Minigame
+  - Minigame2
+  - Plank
   layers:
   - Default
   - TransparentFX
