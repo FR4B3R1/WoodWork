@@ -24,9 +24,9 @@ public class BladeCutterImmediate : MonoBehaviour
     [Tooltip("Se > 0, abilita la gravità sulle metà dopo N secondi (utile per un effetto più 'pulito').")]
     [SerializeField] private float gravityDelay = 0.0f;
 
-    [Header("Audio (opzionale)")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip cutSfx;
+    [Header("Audio accensione")]
+    [SerializeField] private AudioSource audioSource; // Solo per accensione
+    [SerializeField] private AudioClip powerOnSfx;
 
     [Header("Auto cleanup (opzionale)")]
     [Tooltip("Se > 0, distrugge automaticamente le metà dopo N secondi.")]
@@ -36,9 +36,11 @@ public class BladeCutterImmediate : MonoBehaviour
     public UnityEvent OnCut;
 
     private Collider triggerCol;
+    private bool machineOn = false;
 
     private void Awake()
     {
+        machineOn = false; // Forza spento all'inizio
         triggerCol = GetComponent<Collider>();
         if (!triggerCol.isTrigger)
         {
@@ -51,8 +53,32 @@ public class BladeCutterImmediate : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            machineOn = !machineOn;
+            Debug.Log("[BladeCutterImmediate] Macchinario " + (machineOn ? "ACCESO" : "SPENTO"));
+
+            if (audioSource)
+            {
+                if (machineOn && powerOnSfx)
+                {
+                    audioSource.clip = powerOnSfx;
+                    audioSource.Play();
+                }
+                else
+                {
+                    audioSource.Stop(); // Interrompe subito il suono
+                }
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
+        if (!machineOn) return;
+
         Transform plankRoot = GetPlankRoot(other.transform);
         if (plankRoot == null || !plankRoot.CompareTag(plankTag))
         {
@@ -62,9 +88,6 @@ public class BladeCutterImmediate : MonoBehaviour
         DoSplit(plankRoot);
     }
 
-    /// <summary>
-    /// Risale la gerarchia per trovare il Transform marcato con il tag desiderato.
-    /// </summary>
     private Transform GetPlankRoot(Transform tr)
     {
         Transform cur = tr;
@@ -92,14 +115,11 @@ public class BladeCutterImmediate : MonoBehaviour
         Vector3 pos = whole.position;
         Quaternion rot = whole.rotation;
 
-        // Disattiva il pezzo intero
         whole.gameObject.SetActive(false);
 
-        // Istanzia le due metà con un piccolo offset laterale
         GameObject left = Instantiate(halfLeftPrefab, pos - side * halvesOffset, rot);
         GameObject right = Instantiate(halfRightPrefab, pos + side * halvesOffset, rot);
 
-        // Impulsi fisici sulle metà
         if (left.TryGetComponent<Rigidbody>(out var rbL))
         {
             rbL.isKinematic = false;
@@ -124,14 +144,8 @@ public class BladeCutterImmediate : MonoBehaviour
             }
         }
 
-        // Audio + Eventi
-        if (audioSource && cutSfx)
-        {
-            audioSource.PlayOneShot(cutSfx);
-        }
         OnCut?.Invoke();
 
-        // Pulizia opzionale
         if (destroyHalvesAfter > 0f)
         {
             Destroy(left, destroyHalvesAfter);
@@ -139,9 +153,6 @@ public class BladeCutterImmediate : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Componente helper per riattivare la gravità dopo un ritardo.
-    /// </summary>
     private class EnableGravityAfter : MonoBehaviour
     {
         public float Delay = 0.2f;

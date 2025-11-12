@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using StarterAssets;
+using System.Collections;
 
 public class CameraSwitcherSecondMinigame : MonoBehaviour
 {
@@ -13,12 +14,17 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
 
     [Header("Player (StarterAssets FPC)")]
     [SerializeField] private FirstPersonController firstPersonController;
+    [SerializeField] private InventoryManager inventoryManager;
 
     [Header("Minigioco (logica)")]
     [SerializeField] private MonoBehaviour woodController; //script dell'asse di legno (es. WoodMover)
 
     [Header("UI Minigioco")]
     [SerializeField] private MinigameUIController minigameUI;
+
+    [Header("Popup di avviso")]
+    [SerializeField] private GameObject warningText; // Assegna il Panel di avviso
+    [SerializeField] private float warningDuration = 3f; // Durata in secondi
 
     [Header("Cursor")]
     [SerializeField] private bool lockCursorDuringMinigame = true;
@@ -75,8 +81,10 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Minigame2"))
+        if (other.CompareTag("Minigame2") && inventoryManager.allEquipped == true)
             _nearMinigame = true;
+        else if (other.CompareTag("Minigame2") && inventoryManager.allEquipped == false)
+            ShowWarning();
     }
 
     private void OnTriggerExit(Collider other)
@@ -157,8 +165,7 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
     {
         if (mainCamera) mainCamera.enabled = mainOn;
         if (miniGameCamera) miniGameCamera.enabled = !mainOn;
-        ToggleAudioListener(mainCamera, mainOn);
-        ToggleAudioListener(miniGameCamera, !mainOn);
+        // NON toccare l'AudioListener, lascialo sulla mainCamera o su un oggetto dedicato
     }
 
     private void SetMinigameLogicEnabled(bool enabled)
@@ -166,10 +173,17 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
         if (woodController != null) woodController.enabled = enabled;
     }
 
-    private void ToggleAudioListener(Camera cam, bool enable)
+    void ShowWarning()
     {
-        if (!cam) return;
-        var listener = cam.GetComponent<AudioListener>();
-        if (listener) listener.enabled = enable;
+        warningText.SetActive(true);
+        Debug.Log("Non puoi entrare: devi indossare tutti i DPI");
+        StopAllCoroutines(); // Evita conflitti se viene chiamato più volte
+        StartCoroutine(HideWarningAfterDelay(warningDuration));
+    }
+
+    IEnumerator HideWarningAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        warningText.SetActive(false);
     }
 }

@@ -16,23 +16,28 @@ public class InventoryManager : MonoBehaviour
     {
         switch (itemName)
         {
-            case "Helmet":
+            case "Casco":
                 hasHelmet = true;
                 helmetEquipped = true; // equip automatico
 
                 break;
-            case "Gloves":
+            case "Guanti":
                 hasGloves = true;
                 glovesEquipped = true;
 
                 break;
-            case "Glasses":
+            case "Occhiali":
                 hasGlasses = true;
                 glassesEquipped = true;
 
                 break;
         }
 
-        allEquipped = helmetEquipped && glovesEquipped && glassesEquipped;
+        if (hasHelmet && hasGloves && hasGlasses == true)
+        {
+            allEquipped = true;
+        }
+
+
     }
 }

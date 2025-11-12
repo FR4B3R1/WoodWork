@@ -57,7 +57,7 @@ public class MiniGameActivator : MonoBehaviour
         {
             if (!isInMiniGame)
             {
-                if (inventory != null && inventory.allEquipped)
+                if (inventory != null && inventory.allEquipped == true)
                 {
                     EnterMiniGame();
                 }
@@ -96,6 +96,7 @@ public class MiniGameActivator : MonoBehaviour
         isInMiniGame = false;
     }
 
+    
     void ShowWarning()
     {
         warningPopup.SetActive(true);
@@ -109,4 +110,5 @@ public class MiniGameActivator : MonoBehaviour
         yield return new WaitForSeconds(delay);
         warningPopup.SetActive(false);
     }
+    
 }

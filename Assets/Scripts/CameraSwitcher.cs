@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using StarterAssets;
+using System.Collections;
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -21,7 +22,10 @@ public class CameraSwitcher : MonoBehaviour
 
     [Header("UI Minigioco")]
     [SerializeField] private MinigameUIController minigameUI;
-    [SerializeField] private GameObject warningText;
+
+    [Header("Popup di avviso")]
+    [SerializeField] private GameObject warningText; // Assegna il Panel di avviso
+    [SerializeField] private float warningDuration = 3f; // Durata in secondi
 
     [Header("Cursor")]
     [SerializeField] private bool lockCursorDuringMinigame = true;
@@ -75,14 +79,15 @@ public class CameraSwitcher : MonoBehaviour
             ExitToMainCamera();
             return;
         }
-
-        EnterMinigameView();
+            EnterMinigameView();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Minigame"))
+        if (other.CompareTag("Minigame") && inventoryManager.allEquipped == true)
             _nearMinigame = true;
+        else if (other.CompareTag("Minigame") && inventoryManager.allEquipped == false)
+            ShowWarning();
     }
 
     private void OnTriggerExit(Collider other)
@@ -181,5 +186,19 @@ public class CameraSwitcher : MonoBehaviour
         if (!cam) return;
         var listener = cam.GetComponent<AudioListener>();
         if (listener) listener.enabled = enable;
+    }
+
+    void ShowWarning()
+    {
+        warningText.SetActive(true);
+        Debug.Log("Non puoi entrare: devi indossare tutti i DPI");
+        StopAllCoroutines(); // Evita conflitti se viene chiamato più volte
+        StartCoroutine(HideWarningAfterDelay(warningDuration));
+    }
+
+    IEnumerator HideWarningAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        warningText.SetActive(false);
     }
 }
