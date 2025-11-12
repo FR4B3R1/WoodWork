@@ -17,7 +17,7 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
     [SerializeField] private InventoryManager inventoryManager;
 
     [Header("Minigioco (logica)")]
-    [SerializeField] private MonoBehaviour woodController; //script dell'asse di legno (es. WoodMover)
+    [SerializeField] private MonoBehaviour woodController; // script dell'asse di legno (es. WoodMover)
 
     [Header("UI Minigioco")]
     [SerializeField] private MinigameUIController minigameUI;
@@ -35,6 +35,13 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
 
     private float _originalMoveSpeed;
     private float _originalSprintSpeed;
+
+    // Stato minigioco
+    [SerializeField] private bool minigame_2_Played = false;
+    public bool Minigame2Played => minigame_2_Played; // proprietà pubblica per GameOverTrigger
+
+    // ✅ Proprietà pubblica per sapere se la camera del minigioco è attiva
+    public bool IsMinigameActive => _inMinigameView;
 
     private void Awake()
     {
@@ -81,9 +88,9 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Minigame2") && inventoryManager.allEquipped == true)
+        if (other.CompareTag("Minigame2") && inventoryManager.allEquipped)
             _nearMinigame = true;
-        else if (other.CompareTag("Minigame2") && inventoryManager.allEquipped == false)
+        else if (other.CompareTag("Minigame2") && !inventoryManager.allEquipped)
             ShowWarning();
     }
 
@@ -103,7 +110,7 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
         SetCameras(mainOn: false);
         _inMinigameView = true;
 
-        // Blocca solo movimento player
+        // Blocca movimento player
         if (firstPersonController != null)
         {
             firstPersonController.MoveSpeed = 0f;
@@ -114,7 +121,7 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
         SetMinigameLogicEnabled(false);
         _minigameRunning = false;
 
-        // Mostra pannello (parte nascosto)
+        // Mostra pannello UI
         if (minigameUI != null)
             minigameUI.ShowPanel();
 
@@ -127,6 +134,7 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
     {
         // Questo metodo viene chiamato da MinigameUIController.OnStartPressed
         _minigameRunning = true;
+        minigame_2_Played = true; // segna completamento minigioco
         SetMinigameLogicEnabled(true);
 
         if (lockCursorDuringMinigame)
@@ -152,7 +160,7 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
             firstPersonController.SprintSpeed = _originalSprintSpeed;
         }
 
-        // Nascondi sempre il pannello quando esci
+        // Nascondi pannello UI
         if (minigameUI != null)
             minigameUI.HidePanel();
 
@@ -165,7 +173,6 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
     {
         if (mainCamera) mainCamera.enabled = mainOn;
         if (miniGameCamera) miniGameCamera.enabled = !mainOn;
-        // NON toccare l'AudioListener, lascialo sulla mainCamera o su un oggetto dedicato
     }
 
     private void SetMinigameLogicEnabled(bool enabled)
@@ -175,6 +182,8 @@ public class CameraSwitcherSecondMinigame : MonoBehaviour
 
     void ShowWarning()
     {
+        if (warningText == null) return;
+
         warningText.SetActive(true);
         Debug.Log("Non puoi entrare: devi indossare tutti i DPI");
         StopAllCoroutines(); // Evita conflitti se viene chiamato più volte

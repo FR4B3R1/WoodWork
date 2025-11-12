@@ -5,10 +5,12 @@ public class InventoryManager : MonoBehaviour
     public bool hasHelmet = false;
     public bool hasGloves = false;
     public bool hasGlasses = false;
+    public bool hasCuffie = false;
 
     public bool helmetEquipped = false;
     public bool glovesEquipped = false;
     public bool glassesEquipped = false;
+    public bool cuffieEquipped = false;
 
     public bool allEquipped = false;    
 
@@ -31,9 +33,14 @@ public class InventoryManager : MonoBehaviour
                 glassesEquipped = true;
 
                 break;
+                case "Cuffie":
+                hasCuffie = true;
+                cuffieEquipped = true;
+                break;
+
         }
 
-        if (hasHelmet && hasGloves && hasGlasses == true)
+        if (hasHelmet && hasGloves && hasGlasses && hasCuffie == true)
         {
             allEquipped = true;
         }

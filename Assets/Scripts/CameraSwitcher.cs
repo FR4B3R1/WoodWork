@@ -17,15 +17,15 @@ public class CameraSwitcher : MonoBehaviour
     [SerializeField] private InventoryManager inventoryManager;
 
     [Header("Minigioco (logica)")]
-    [SerializeField] private MonoBehaviour sawController;   // script della sega (es. SawController)
-    [SerializeField] private MonoBehaviour woodCutSimple;   // script del progresso (es. WoodCutSimple)
+    [SerializeField] private MonoBehaviour sawController;   // script della sega
+    [SerializeField] private MonoBehaviour woodCutSimple;   // script del progresso
 
     [Header("UI Minigioco")]
     [SerializeField] private MinigameUIController minigameUI;
 
     [Header("Popup di avviso")]
-    [SerializeField] private GameObject warningText; // Assegna il Panel di avviso
-    [SerializeField] private float warningDuration = 3f; // Durata in secondi
+    [SerializeField] private GameObject warningText; // Panel di avviso
+    [SerializeField] private float warningDuration = 3f;
 
     [Header("Cursor")]
     [SerializeField] private bool lockCursorDuringMinigame = true;
@@ -36,6 +36,9 @@ public class CameraSwitcher : MonoBehaviour
 
     private float _originalMoveSpeed;
     private float _originalSprintSpeed;
+
+    [SerializeField] private bool minigame_1_played = false;
+    public bool Minigame1Played => minigame_1_played; // proprietà pubblica per GameOverTrigger
 
     private void Awake()
     {
@@ -75,18 +78,16 @@ public class CameraSwitcher : MonoBehaviour
         if (!_nearMinigame) return;
 
         if (_inMinigameView)
-        {
             ExitToMainCamera();
-            return;
-        }
+        else
             EnterMinigameView();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Minigame") && inventoryManager.allEquipped == true)
+        if (other.CompareTag("Minigame") && inventoryManager.allEquipped)
             _nearMinigame = true;
-        else if (other.CompareTag("Minigame") && inventoryManager.allEquipped == false)
+        else if (other.CompareTag("Minigame") && !inventoryManager.allEquipped)
             ShowWarning();
     }
 
@@ -103,11 +104,10 @@ public class CameraSwitcher : MonoBehaviour
 
     private void EnterMinigameView()
     {
-
         SetCameras(mainOn: false);
         _inMinigameView = true;
 
-        // Blocca solo movimento player
+        // Blocca movimento player
         if (firstPersonController != null)
         {
             firstPersonController.MoveSpeed = 0f;
@@ -118,7 +118,7 @@ public class CameraSwitcher : MonoBehaviour
         SetMinigameLogicEnabled(false);
         _minigameRunning = false;
 
-        // Mostra pannello (parte nascosto)
+        // Mostra pannello UI
         if (minigameUI != null)
             minigameUI.ShowPanel();
 
@@ -129,10 +129,9 @@ public class CameraSwitcher : MonoBehaviour
 
     public void StartMinigame()
     {
-
-
         // Questo metodo viene chiamato da MinigameUIController.OnStartPressed
         _minigameRunning = true;
+        minigame_1_played = true; // segna completamento minigioco
         SetMinigameLogicEnabled(true);
 
         if (lockCursorDuringMinigame)
@@ -158,7 +157,7 @@ public class CameraSwitcher : MonoBehaviour
             firstPersonController.SprintSpeed = _originalSprintSpeed;
         }
 
-        // Nascondi sempre il pannello quando esci
+        // Nascondi pannello UI
         if (minigameUI != null)
             minigameUI.HidePanel();
 
@@ -190,9 +189,11 @@ public class CameraSwitcher : MonoBehaviour
 
     void ShowWarning()
     {
+        if (warningText == null) return;
+
         warningText.SetActive(true);
         Debug.Log("Non puoi entrare: devi indossare tutti i DPI");
-        StopAllCoroutines(); // Evita conflitti se viene chiamato più volte
+        StopAllCoroutines();
         StartCoroutine(HideWarningAfterDelay(warningDuration));
     }
 

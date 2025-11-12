@@ -1,13 +1,17 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(Collider))]
-public class BladeCutterImmediate : MonoBehaviour
+public class BladeCutteImmediate : MonoBehaviour
 {
+
+    [Header("Controllo Minigioco")]
+    [SerializeField] private CameraSwitcherSecondMinigame minigameController; // Riferimento al controller del minigioco
+
     [Header("Filtro oggetti da tagliare")]
     [SerializeField] private string plankTag = "Plank";
 
-    [Header("Prefab met‡")]
+    [Header("Prefab met√†")]
     [SerializeField] private GameObject halfLeftPrefab;
     [SerializeField] private GameObject halfRightPrefab;
 
@@ -15,13 +19,13 @@ public class BladeCutterImmediate : MonoBehaviour
     [Tooltip("Transform di riferimento della lama. right = separazione laterale, forward = spinta in uscita.")]
     [SerializeField] private Transform bladeRef;
 
-    [Tooltip("Distanza iniziale tra le due met‡ quando appaiono.")]
+    [Tooltip("Distanza iniziale tra le due met√† quando appaiono.")]
     [SerializeField] private float halvesOffset = 0.01f;
 
     [Header("Impulsi fisici")]
     [SerializeField] private float sideImpulse = 1.5f;
     [SerializeField] private float forwardKick = 0.4f;
-    [Tooltip("Se > 0, abilita la gravit‡ sulle met‡ dopo N secondi (utile per un effetto pi˘ 'pulito').")]
+    [Tooltip("Se > 0, abilita la gravit√† sulle met√† dopo N secondi (utile per un effetto pi√π 'pulito').")]
     [SerializeField] private float gravityDelay = 0.0f;
 
     [Header("Audio accensione")]
@@ -29,7 +33,7 @@ public class BladeCutterImmediate : MonoBehaviour
     [SerializeField] private AudioClip powerOnSfx;
 
     [Header("Auto cleanup (opzionale)")]
-    [Tooltip("Se > 0, distrugge automaticamente le met‡ dopo N secondi.")]
+    [Tooltip("Se > 0, distrugge automaticamente le met√† dopo N secondi.")]
     [SerializeField] private float destroyHalvesAfter = 0f;
 
     [Header("Eventi")]
@@ -49,7 +53,7 @@ public class BladeCutterImmediate : MonoBehaviour
 
         if (!bladeRef)
         {
-            Debug.LogWarning("[BladeCutterImmediate] 'bladeRef' non assegnato: userÚ assi del mondo (right/forward).");
+            Debug.LogWarning("[BladeCutterImmediate] 'bladeRef' non assegnato: user√≤ assi del mondo (right/forward).");
         }
     }
 
@@ -57,20 +61,28 @@ public class BladeCutterImmediate : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            machineOn = !machineOn;
-            Debug.Log("[BladeCutterImmediate] Macchinario " + (machineOn ? "ACCESO" : "SPENTO"));
-
-            if (audioSource)
+            // ‚úÖ Controllo: il macchinario si accende solo se il minigioco √® attivo
+            if (minigameController != null && minigameController.IsMinigameActive)
             {
-                if (machineOn && powerOnSfx)
+                machineOn = !machineOn;
+                Debug.Log("[BladeCutterImmediate] Macchinario " + (machineOn ? "ACCESO" : "SPENTO"));
+
+                if (audioSource)
                 {
-                    audioSource.clip = powerOnSfx;
-                    audioSource.Play();
+                    if (machineOn && powerOnSfx)
+                    {
+                        audioSource.clip = powerOnSfx;
+                        audioSource.Play();
+                    }
+                    else
+                    {
+                        audioSource.Stop(); // Interrompe subito il suono
+                    }
                 }
-                else
-                {
-                    audioSource.Stop(); // Interrompe subito il suono
-                }
+            }
+            else
+            {
+                Debug.Log("[BladeCutterImmediate] Non puoi accendere la macchina fuori dal minigioco!");
             }
         }
     }
@@ -105,7 +117,7 @@ public class BladeCutterImmediate : MonoBehaviour
     {
         if (!halfLeftPrefab || !halfRightPrefab)
         {
-            Debug.LogError("[BladeCutterImmediate] Prefab delle met‡ non assegnati.");
+            Debug.LogError("[BladeCutterImmediate] Prefab delle met√† non assegnati.");
             return;
         }
 
